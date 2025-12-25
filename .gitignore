@@ -1,0 +1,11 @@
+# Node
+node_modules/
+
+# Java
+target/
+
+# Environment files
+.env
+
+# OS files
+.DS_Store
