@@ -23,8 +23,9 @@ function Login() {
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
-
+      localStorage.setItem("username", res.data.username);
       navigate("/vote");
+      
     } catch (err) {
       setError("Invalid username or password");
     }
@@ -38,7 +39,7 @@ function Login() {
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
-
+      localStorage.setItem("username", res.data.username);
       navigate("/vote");
     } catch {
       setError("Google login failed");
@@ -83,6 +84,7 @@ function Login() {
       </div>
     </div>
   );
+  
 }
 
 export default Login;

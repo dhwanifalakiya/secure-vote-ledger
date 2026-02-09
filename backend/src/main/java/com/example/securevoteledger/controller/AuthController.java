@@ -40,6 +40,7 @@ public class AuthController {
 
         Map<String, String> res = new HashMap<>();
         res.put("token", "dummy-jwt");
+        res.put("username", user.getUsername());
         res.put("role", user.getRole());
 
         return ResponseEntity.ok(res);

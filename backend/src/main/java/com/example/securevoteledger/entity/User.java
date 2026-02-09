@@ -15,7 +15,7 @@ public class User {
 
     private String password;
     private String role;
-    private boolean hasVoted;
+    private boolean hasVoted=false;
 
     public User() {}
 

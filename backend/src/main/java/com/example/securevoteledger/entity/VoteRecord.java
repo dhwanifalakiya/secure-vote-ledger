@@ -13,17 +13,25 @@ public class VoteRecord {
 
     private String username;
     private String constituency;
+    private String candidate;
     private String voteHash; // blockchain reference
     private LocalDateTime timestamp;
 
     public VoteRecord() {}
 
-    public VoteRecord(String username, String constituency, String voteHash) {
+    public VoteRecord(String username, String constituency,String candidate, String voteHash) {
         this.username = username;
         this.constituency = constituency;
+        this.candidate = candidate;
         this.voteHash = voteHash;
         this.timestamp = LocalDateTime.now();
     }
 
-    // getters
+    public Long getId() { return id; }
+    public String getUsername() { return username; }
+    public String getConstituency() { return constituency; }
+    public String getCandidate() { return candidate; }
+    public String getVoteHash() { return voteHash; }
+    public LocalDateTime getTimestamp() { return timestamp; }
+
 }

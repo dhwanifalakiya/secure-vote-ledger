@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../styles/Vote.css";
+import api from "../services/api";   
 
 const constituencies = [
   "Ahmedabad East",
@@ -87,6 +88,7 @@ const candidates = [
 
 
 function Vote() {
+  const [error, setError] = useState("");
   const [constituency, setConstituency] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -105,10 +107,30 @@ function Vote() {
     setShowConfirm(true);
   };
 
-  const confirmVote = () => {
+  const confirmVote = async () => {
     setShowConfirm(false);
-    setReceipt(selectedCandidate);
+    setError("");
+
+    try {
+      await api.post("/vote", {
+        username: localStorage.getItem("username"),
+        constituency: constituency,
+        candidate: selectedCandidate.name,
+      });
+
+      // Only show receipt if backend ACCEPTS vote
+      setReceipt(selectedCandidate);
+
+    }
+    catch (err) {
+        if (err.response && err.response.status === 403) {
+            setError("❌ You have already voted. Multiple voting is not allowed.");
+        } else {
+            setError("❌ Voting failed. Please try again.");
+        }
+      }
   };
+
 
   return (
     <div className="vote-page">
@@ -153,6 +175,7 @@ function Vote() {
         ))}
       </div>
 
+      {error && <p className="error-message">{error}</p>}
       {/* Vote Button */}
       <button
         className="vote-btn"
