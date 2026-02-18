@@ -3,6 +3,7 @@ package com.example.securevoteledger.service;
 import com.example.securevoteledger.entity.User;
 import com.example.securevoteledger.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
@@ -10,9 +11,12 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository,
+                    BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User register(String username, String password, String role) {
@@ -21,7 +25,8 @@ public class UserService {
         if (existingUser.isPresent()) {
             throw new RuntimeException("User already exists");
         }
-        User user = new User(username, password, role);
+        String encodedPassword = passwordEncoder.encode(password);
+        User user = new User(username, encodedPassword, role);
         return userRepository.save(user);
     }
 
@@ -32,7 +37,7 @@ public class UserService {
             return null;
         }
         User user = userOpt.get();
-        if (!user.getPassword().equals(password)) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             return null;
         }
         return user;
@@ -54,4 +59,9 @@ public class UserService {
             userRepository.save(user);
         }
     }
+
+    public long getTotalUsers() {
+        return userRepository.count();
+    }
+
 }
