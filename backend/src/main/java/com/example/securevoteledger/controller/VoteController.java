@@ -34,47 +34,36 @@ public class VoteController {
         String candidate = body.get("candidate");
 
         if (username == null || constituency == null || candidate == null) {
-            return ResponseEntity.badRequest().body("Invalid vote data");
+                return ResponseEntity.badRequest().body("Invalid vote data");
         }
 
-        // 🔐 CHECK IF USER HAS ALREADY VOTED
-        if (userService.hasUserVoted(username)) {
-            return ResponseEntity.status(403).body("User has already voted");
+        if (voteRepository.existsByUsername(username)) {
+                return ResponseEntity.status(403).body("User has already voted");
         }
 
-        // ✅ CREATE VOTE RECORD
-        VoteRecord voteRecord = new VoteRecord(
-                username,
-                constituency,
-                candidate,
-                "hash_" + System.currentTimeMillis()
-        );
+        // Get last vote
+        VoteRecord lastVote = voteRepository.findAll().stream()
+                .reduce((first, second) -> second)
+                .orElse(null);
 
-        // ✅ SAVE VOTE TO DATABASE
+        String previousHash = (lastVote == null) ? "0" : lastVote.getVoteHash();
+
+        // Generate current hash
+        String data = username + constituency + candidate + previousHash;
+        String currentHash = HashUtil.generateHash(data);
+
+        // Create new block
+        VoteRecord voteRecord = new VoteRecord( username, constituency, candidate, previousHash, currentHash );
+
+        // Save once
         voteRepository.save(voteRecord);
 
-        // ✅ MARK USER AS VOTED
+        // ✅ Mark user voted
         userService.markUserAsVoted(username);
 
-        // 🔗 Get previous hash
-        String previousHash = voteRepository.findAll().stream()
-                .reduce((first, second) -> second)
-                .map(VoteRecord::getVoteHash)
-                .orElse("0");
-
-        // 🔐 Generate new vote hash
-        String data = username + constituency + candidate + previousHash;
-        String voteHash = HashUtil.generateHash(data);
-
-        // 💾 Save vote record
-        VoteRecord votesRecord =
-                new VoteRecord(username, constituency, candidate, voteHash);
-
-        voteRepository.save(votesRecord);
-
-
         return ResponseEntity.ok("Vote cast successfully");
-    }
+        }
+
 
     @GetMapping("/results")
     public ResponseEntity<?> getResultsByConstituency(
@@ -150,5 +139,39 @@ public class VoteController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/admin/validate-chain")
+    public ResponseEntity<?> validateChain(@RequestParam String role) {
+
+        if (!"ADMIN".equals(role)) {
+                return ResponseEntity.status(403)
+                        .body("Access denied. Admin only.");
+        }
+
+        List<VoteRecord> votes = voteRepository.findAll();
+
+        String previousHash = "0";
+
+        for (VoteRecord vote : votes) {
+
+        if (!vote.getPreviousHash().equals(previousHash)) {
+                return ResponseEntity.ok("❌ Blockchain broken (previous hash mismatch)");
+        }
+
+        String recalculatedHash = HashUtil.generateHash(
+                vote.getUsername()
+                + vote.getConstituency()
+                + vote.getCandidate()
+                + vote.getPreviousHash()
+        );
+
+        if (!vote.getVoteHash().equals(recalculatedHash)) {
+                return ResponseEntity.ok("❌ Blockchain tampered (hash mismatch)");
+        }
+
+        previousHash = vote.getVoteHash();
+        }
+
+        return ResponseEntity.ok("✅ Blockchain is valid and untampered.");
+        }
 
 }

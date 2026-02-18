@@ -6,6 +6,7 @@ import "../styles/Dashboard.css";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const [validationResult, setValidationResult] = useState(null);
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
@@ -28,6 +29,19 @@ function Dashboard() {
       setStats(res.data);
     } catch (error) {
       console.error("Error fetching stats", error);
+    }
+  };
+
+  const validateChain = async () => {
+    try {
+      const role = localStorage.getItem("role");
+
+      const res = await api.get(`/admin/validate-chain?role=${role}`);
+
+      setValidationResult(res.data);
+
+    } catch (error) {
+      setValidationResult("❌ Validation failed.");
     }
   };
 
@@ -99,7 +113,23 @@ function Dashboard() {
                 </PieChart>
             </ResponsiveContainer>
             </div>
-        </>
+            <div className="validation-section">
+              <button className="validate-btn" onClick={validateChain}>
+                🔍 Validate Blockchain Integrity
+              </button>
+
+              {validationResult && (
+                <p
+                  className={`validation-result ${
+                    validationResult.includes("valid") ? "success" : "error"
+                  }`}
+                >
+                  {validationResult}
+                </p>
+              )}
+            </div>
+
+          </>
         )}
     </div>
   );
