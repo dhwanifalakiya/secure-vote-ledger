@@ -1,11 +1,21 @@
 # Node
 node_modules/
+build/
+dist/
 
-# Java
+# Logs
+*.log
+
+# Backend
 target/
+*.class
 
-# Environment files
-.env
+# IDE
+.idea/
+.vscode/
 
-# OS files
+# OS
 .DS_Store
+
+# Ethereum
+*.key

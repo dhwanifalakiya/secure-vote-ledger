@@ -2,6 +2,7 @@ package com.example.securevoteledger.controller;
 
 import com.example.securevoteledger.entity.VoteRecord;
 import com.example.securevoteledger.repository.VoteRepository;
+import com.example.securevoteledger.service.EthereumService;
 import com.example.securevoteledger.service.UserService;
 import com.example.securevoteledger.util.HashUtil;
 
@@ -17,12 +18,14 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "http://localhost:3000")
 public class VoteController {
 
+    private final EthereumService ethereumService;
     private final UserService userService;
     private final VoteRepository voteRepository;
 
-    public VoteController(UserService userService, VoteRepository voteRepository) {
+    public VoteController(UserService userService, VoteRepository voteRepository, EthereumService ethereumService) {
         this.userService = userService;
         this.voteRepository = voteRepository;
+        this.ethereumService=ethereumService;
     }
 
     @Transactional
@@ -57,6 +60,7 @@ public class VoteController {
 
         // Save once
         voteRepository.save(voteRecord);
+        ethereumService.storeVoteHash(currentHash);
 
         // ✅ Mark user voted
         userService.markUserAsVoted(username);
