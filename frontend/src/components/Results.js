@@ -30,13 +30,13 @@ function Results() {
       alert("Access denied. Admin only.");
       navigate("/vote");
     }
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     if (selectedConstituency) {
       fetchResults();
     }
-  }, [selectedConstituency]);
+  }, [selectedConstituency, fetchResults]);
 
   const fetchResults = async () => {
     try {

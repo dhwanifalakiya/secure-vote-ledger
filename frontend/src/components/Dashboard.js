@@ -19,7 +19,7 @@ function Dashboard() {
     }
 
     fetchStats();
-  }, []);
+  }, [navigate]);
 
   const fetchStats = async () => {
     try {
