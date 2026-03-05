@@ -100,6 +100,7 @@ public class VoteController {
 
         return ResponseEntity.ok(response);
     }
+    
     @GetMapping("/admin/stats")
     public ResponseEntity<?> getAdminStats(@RequestParam String role) {
 
