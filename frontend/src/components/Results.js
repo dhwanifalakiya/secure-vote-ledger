@@ -32,12 +32,6 @@ function Results() {
     }
   }, [navigate]);
 
-  useEffect(() => {
-    if (selectedConstituency) {
-      fetchResults();
-    }
-  }, [selectedConstituency, fetchResults]);
-
   const fetchResults = async () => {
     try {
       const role = localStorage.getItem("role");
@@ -51,6 +45,12 @@ function Results() {
       console.error("Error fetching results", error);
     }
   };
+  
+  useEffect(() => {
+    if (selectedConstituency) {
+      fetchResults();
+    }
+  }, [selectedConstituency, fetchResults]);
 
   return (
     <div className="results-page">
