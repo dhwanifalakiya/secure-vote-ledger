@@ -96,3 +96,14 @@
 .error {
   color: #c62828;
 }
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .stat-card {
+    width: 90%;
+  }
+}

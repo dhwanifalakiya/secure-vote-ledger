@@ -102,3 +102,45 @@
     width: 0;
   }
 }
+
+@media (max-width: 768px) {
+
+  .results-page {
+    padding: 25px 15px;
+  }
+
+  .results-page h2 {
+    font-size: 22px;
+  }
+
+  .constituency-select {
+    width: 100%;
+    font-size: 15px;
+  }
+
+  .result-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+  }
+
+  .candidate-name {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .bar-container {
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  .vote-count {
+    width: 100%;
+    text-align: right;
+    font-size: 14px;
+  }
+
+  .chart-container {
+    padding: 15px;
+  }
+}
