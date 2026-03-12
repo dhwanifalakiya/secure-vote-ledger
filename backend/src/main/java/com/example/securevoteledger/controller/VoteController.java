@@ -1,12 +1,17 @@
 package com.example.securevoteledger.controller;
 
 import com.example.securevoteledger.entity.Candidate;
+import com.example.securevoteledger.entity.ElectionStatus;
 import com.example.securevoteledger.entity.VoteRecord;
 import com.example.securevoteledger.repository.VoteRepository;
 import com.example.securevoteledger.service.EthereumService;
 import com.example.securevoteledger.service.UserService;
 import com.example.securevoteledger.util.HashUtil;
 import com.example.securevoteledger.repository.CandidateRepository;
+import com.example.securevoteledger.repository.ElectionStatusRepository;
+import com.example.securevoteledger.repository.UserRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,22 +24,37 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "http://localhost:3000")
 public class VoteController {
 
+    @Autowired
+    private ElectionStatusRepository electionStatusRepository;
     private final EthereumService ethereumService;
     private final UserService userService;
     private final VoteRepository voteRepository;
     private final CandidateRepository candidateRepository;
+    private final UserRepository userRepository;
 
-    public VoteController(UserService userService, VoteRepository voteRepository, EthereumService ethereumService, CandidateRepository candidateRepository) {
+    public VoteController(UserService userService, VoteRepository voteRepository, EthereumService ethereumService, CandidateRepository candidateRepository, UserRepository userRepository) {
         this.userService = userService;
         this.voteRepository = voteRepository;
         this.ethereumService=ethereumService;
         this.candidateRepository=candidateRepository;
+        this.userRepository=userRepository;
     }
 
     @Transactional
     @PostMapping("/vote")
     public ResponseEntity<?> castVote(@RequestBody Map<String, String> body) {
 
+        boolean isOpen = electionStatusRepository
+                .findAll()
+                .stream()
+                .findFirst()
+                .map(ElectionStatus::isOpen)
+                .orElse(true);
+
+        if(!isOpen){
+        return ResponseEntity.status(403)
+                .body("Election is closed");
+        }
         String username = body.get("username");
         String constituency = body.get("constituency");
         String candidate = body.get("candidate");
@@ -178,6 +198,62 @@ public class VoteController {
         }
 
         return ResponseEntity.ok("✅ Blockchain is valid and untampered.");
+    }
+        @GetMapping("/admin/turnout")
+        public ResponseEntity<?> getTurnout(@RequestParam String role) {
+
+        if (!"ADMIN".equals(role)) {
+                return ResponseEntity.status(403).body("Admins only");
         }
 
+        long totalUsers = userRepository.count();
+        long votesCast = voteRepository.count();
+
+        double turnout = 0;
+
+        if (totalUsers > 0) {
+                turnout = ((double) votesCast / totalUsers) * 100;
+        }
+
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("registeredVoters", totalUsers);
+        response.put("votesCast", votesCast);
+        response.put("turnout", turnout);
+
+        return ResponseEntity.ok(response);
+        }
+        @GetMapping("/election-status")
+        public boolean getElectionStatus(){
+
+        return electionStatusRepository.findAll()
+                .stream()
+                .findFirst()
+                .map(ElectionStatus::isOpen)
+                .orElse(true);
+        }
+        @PostMapping("/admin/open-election")
+        public String openElection(){
+
+        ElectionStatus status =
+                electionStatusRepository.findAll().stream().findFirst().orElse(new ElectionStatus());
+
+        status.setOpen(true);
+
+        electionStatusRepository.save(status);
+
+        return "Election opened";
+        }
+        @PostMapping("/admin/close-election")
+        public String closeElection(){
+
+        ElectionStatus status =
+                electionStatusRepository.findAll().stream().findFirst().orElse(new ElectionStatus());
+
+        status.setOpen(false);
+
+        electionStatusRepository.save(status);
+
+        return "Election closed";
+        }
 }

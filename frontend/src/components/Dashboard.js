@@ -8,6 +8,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const [validationResult, setValidationResult] = useState(null);
   const [stats, setStats] = useState(null);
+  const [turnout, setTurnout] = useState(null);
 
   useEffect(() => {
     const role = localStorage.getItem("role");
@@ -31,7 +32,13 @@ function Dashboard() {
       console.error("Error fetching stats", error);
     }
   };
+  const fetchTurnout = async () => {
+    const role = localStorage.getItem("role");
 
+    const res = await api.get(`/admin/turnout?role=${role}`);
+
+    setTurnout(res.data);
+  };
   const validateChain = async () => {
     try {
       const role = localStorage.getItem("role");
@@ -61,7 +68,10 @@ function Dashboard() {
                 <h3>Total Votes</h3>
                 <p>{stats.totalVotes}</p>
             </div>
-
+            <div className="stat-card highlight">
+                <h3>Voter Turnout</h3>
+                <p>{turnout.turnout.toFixed(2)}%</p>
+            </div>
             <div className="stat-card highlight">
                 <h3>Leading Candidate</h3>
                 <p>{stats.leadingCandidate}</p>
@@ -128,7 +138,13 @@ function Dashboard() {
                 </p>
               )}
             </div>
+            <button onClick={() => api.post("/admin/open-election")}>
+            Open Election
+            </button>
 
+            <button onClick={() => api.post("/admin/close-election")}>
+            Close Election
+            </button>
           </>
         )}
     </div>
