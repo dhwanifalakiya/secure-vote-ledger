@@ -1,11 +1,12 @@
 package com.example.securevoteledger.controller;
 
+import com.example.securevoteledger.entity.Candidate;
 import com.example.securevoteledger.entity.VoteRecord;
 import com.example.securevoteledger.repository.VoteRepository;
 import com.example.securevoteledger.service.EthereumService;
 import com.example.securevoteledger.service.UserService;
 import com.example.securevoteledger.util.HashUtil;
-
+import com.example.securevoteledger.repository.CandidateRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +22,13 @@ public class VoteController {
     private final EthereumService ethereumService;
     private final UserService userService;
     private final VoteRepository voteRepository;
+    private final CandidateRepository candidateRepository;
 
-    public VoteController(UserService userService, VoteRepository voteRepository, EthereumService ethereumService) {
+    public VoteController(UserService userService, VoteRepository voteRepository, EthereumService ethereumService, CandidateRepository candidateRepository) {
         this.userService = userService;
         this.voteRepository = voteRepository;
         this.ethereumService=ethereumService;
+        this.candidateRepository=candidateRepository;
     }
 
     @Transactional
@@ -70,36 +73,34 @@ public class VoteController {
 
 
     @GetMapping("/results")
-    public ResponseEntity<?> getResultsByConstituency(
-            @RequestParam String constituency,
-            @RequestParam String role) {
+        public ResponseEntity<?> getResults(
+                @RequestParam String constituency,
+                @RequestParam String role) {
 
-        // 🔐 Allow only ADMIN
         if (!"ADMIN".equals(role)) {
-            return ResponseEntity.status(403)
-                    .body("Access denied. Admins only.");
+                return ResponseEntity.status(403).body("Admin only");
         }
 
-        List<VoteRecord> votes =
-                voteRepository.findByConstituency(constituency);
+        List<Candidate> candidates =
+                candidateRepository.findByConstituency(constituency);
 
-        Map<String, Long> resultMap = votes.stream()
-                .collect(Collectors.groupingBy(
-                        VoteRecord::getCandidate,
-                        Collectors.counting()
-                ));
+        List<Map<String,Object>> results = new ArrayList<>();
 
-        List<Map<String, Object>> response = new ArrayList<>();
+        for(Candidate c : candidates){
 
-        for (Map.Entry<String, Long> entry : resultMap.entrySet()) {
-            Map<String, Object> candidateResult = new HashMap<>();
-            candidateResult.put("name", entry.getKey());
-            candidateResult.put("votes", entry.getValue());
-            response.add(candidateResult);
+                long voteCount =
+                        voteRepository.countByCandidate(c.getName());
+
+                Map<String,Object> data = new HashMap<>();
+
+                data.put("name", c.getName());
+                data.put("votes", voteCount);
+
+                results.add(data);
         }
 
-        return ResponseEntity.ok(response);
-    }
+        return ResponseEntity.ok(results);
+        }
     
     @GetMapping("/admin/stats")
     public ResponseEntity<?> getAdminStats(@RequestParam String role) {
