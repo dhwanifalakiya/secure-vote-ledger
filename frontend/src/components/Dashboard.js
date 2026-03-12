@@ -51,6 +51,31 @@ function Dashboard() {
       setValidationResult("❌ Validation failed.");
     }
   };
+  const openElection = async () => {
+    try {
+      const role = localStorage.getItem("role");
+
+      await api.post(`/admin/open-election?role=${role}`);
+
+      alert("Election opened successfully");
+
+    } catch (error) {
+      console.error("Error opening election", error);
+    }
+  };
+
+  const closeElection = async () => {
+    try {
+      const role = localStorage.getItem("role");
+
+      await api.post(`/admin/close-election?role=${role}`);
+
+      alert("Election closed successfully");
+
+    } catch (error) {
+      console.error("Error closing election", error);
+    }
+  };
 
   return (
     <div className="dashboard-page">
@@ -127,10 +152,15 @@ function Dashboard() {
             </ResponsiveContainer>
             </div>
             <div className="validation-section">
+              <button className="validate-btn" onClick={openElection}>
+                🟢 Open Election
+              </button>
+              <button className="validate-btn" onClick={closeElection}>
+                🔴 Close Election
+              </button>
               <button className="validate-btn" onClick={validateChain}>
                 🔍 Validate Blockchain Integrity
               </button>
-
               {validationResult && (
                 <p
                   className={`validation-result ${
