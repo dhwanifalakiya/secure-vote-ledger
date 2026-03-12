@@ -12,12 +12,11 @@ import {
 } from "recharts";
 import "../styles/Results.css";
 
-const [constituencies, setConstituencies] = useState([]);
-
 function Results() {
   const navigate = useNavigate();
   const [selectedConstituency, setSelectedConstituency] = useState("");
   const [results, setResults] = useState([]);
+  const [constituencies, setConstituencies] = useState([]);
 
   useEffect(() => {
     fetchConstituencies();
