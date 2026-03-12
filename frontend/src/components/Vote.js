@@ -64,12 +64,13 @@ function Vote() {
 
     }
     catch (err) {
-        if (err.response && err.response.status === 403) {
-            setError("❌ You have already voted. Multiple voting is not allowed.");
-        } else {
-            setError("❌ Voting failed. Please try again.");
-        }
+      if (err.response && err.response.data) {
+          setError(`❌ ${err.response.data}`);
+      } 
+      else {
+          setError("❌ Voting failed. Please try again.");
       }
+    }
   };
 
 
