@@ -171,13 +171,6 @@ function Dashboard() {
                 </p>
               )}
             </div>
-            <button onClick={() => api.post("/admin/open-election")}>
-            Open Election
-            </button>
-
-            <button onClick={() => api.post("/admin/close-election")}>
-            Close Election
-            </button>
           </>
         )}
     </div>

@@ -32,12 +32,13 @@ public class VoteController {
     private final CandidateRepository candidateRepository;
     private final UserRepository userRepository;
 
-    public VoteController(UserService userService, VoteRepository voteRepository, EthereumService ethereumService, CandidateRepository candidateRepository, UserRepository userRepository) {
+    public VoteController(UserService userService, VoteRepository voteRepository, EthereumService ethereumService, CandidateRepository candidateRepository, UserRepository userRepository, ElectionStatusRepository electionStatusRepository) {
         this.userService = userService;
         this.voteRepository = voteRepository;
         this.ethereumService=ethereumService;
         this.candidateRepository=candidateRepository;
         this.userRepository=userRepository;
+        this.electionStatusRepository=electionStatusRepository;
     }
 
     @Transactional
