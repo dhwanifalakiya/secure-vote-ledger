@@ -10,6 +10,7 @@ function Vote() {
   const [selectedId, setSelectedId] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [receipt, setReceipt] = useState(null);
+  const [isElectionOpen, setIsElectionOpen] = useState(true);
 
   useEffect(() => {
     fetchConstituencies();
@@ -23,6 +24,17 @@ function Vote() {
       console.error("Error fetching constituencies", error);
     }
   };
+  useEffect(() => {
+    const fetchElectionStatus = async () => {
+      try {
+        const res = await api.get("/election-status");
+        setIsElectionOpen(res.data);
+      } catch (error) {
+        console.error("Error fetching election status", error);
+      }
+    };
+    fetchElectionStatus();
+  }, []);
   useEffect(() => {
     if (constituency) {
       fetchCandidates();
@@ -118,10 +130,14 @@ function Vote() {
       </div>
 
       {error && <p className="error-message">{error}</p>}
-      {/* Vote Button */}
+      {!isElectionOpen && (
+        <p className="error-message">
+          ❌ Election is currently closed. Voting is not allowed.
+        </p>
+      )}
       <button
         className="vote-btn"
-        disabled={!selectedId || !constituency}
+        disabled={!selectedId || !constituency || !isElectionOpen}
         onClick={handleVoteClick}
       >
         Cast Vote
