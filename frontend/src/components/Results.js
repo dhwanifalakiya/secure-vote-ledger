@@ -12,18 +12,25 @@ import {
 } from "recharts";
 import "../styles/Results.css";
 
-const constituencies = [
-  "Ahmedabad East",
-  "Surat West",
-  "Vadodara Central",
-];
+const [constituencies, setConstituencies] = useState([]);
 
 function Results() {
   const navigate = useNavigate();
   const [selectedConstituency, setSelectedConstituency] = useState("");
   const [results, setResults] = useState([]);
 
-  // 🔐 Admin protection
+  useEffect(() => {
+    fetchConstituencies();
+  }, []);
+
+  const fetchConstituencies = async () => {
+    try {
+      const res = await api.get("/constituencies");
+      setConstituencies(res.data);
+    } catch (error) {
+      console.error("Error fetching constituencies", error);
+    }
+  };
   useEffect(() => {
     const role = localStorage.getItem("role");
     if (role !== "ADMIN") {
@@ -63,8 +70,8 @@ function Results() {
       >
         <option value="">Select Constituency</option>
         {constituencies.map((c) => (
-          <option key={c} value={c}>
-            {c}
+          <option key={c.id} value={c.name}>
+            {c.name}
           </option>
         ))}
       </select>
