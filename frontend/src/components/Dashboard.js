@@ -68,10 +68,13 @@ function Dashboard() {
                 <h3>Total Votes</h3>
                 <p>{stats.totalVotes}</p>
             </div>
-            <div className="stat-card highlight">
-                <h3>Voter Turnout</h3>
-                <p>{turnout.turnout.toFixed(2)}%</p>
-            </div>
+            {turnout &&(
+              <div className="stat-card highlight">
+                  <h3>Voter Turnout</h3>
+                  <p>{turnout.turnout.toFixed(2)}%</p>
+              </div>
+            )}
+              
             <div className="stat-card highlight">
                 <h3>Leading Candidate</h3>
                 <p>{stats.leadingCandidate}</p>
