@@ -104,33 +104,41 @@ public class VoteController {
 
 
     @GetMapping("/results")
-        public ResponseEntity<?> getResults(
+        public ResponseEntity<?> getResultsByConstituency(
                 @RequestParam String constituency,
                 @RequestParam String role) {
 
         if (!"ADMIN".equals(role)) {
-                return ResponseEntity.status(403).body("Admin only");
+                return ResponseEntity.status(403).body("Admins only");
         }
 
         List<Candidate> candidates =
                 candidateRepository.findByConstituency(constituency);
 
-        List<Map<String,Object>> results = new ArrayList<>();
+        List<VoteRecord> votes =
+                voteRepository.findByConstituency(constituency);
 
-        for(Candidate c : candidates){
+        Map<String, Long> voteCounts = votes.stream()
+                .collect(Collectors.groupingBy(
+                        VoteRecord::getCandidate,
+                        Collectors.counting()
+                ));
 
-                long voteCount =
-                        voteRepository.countByCandidate(c.getName());
+        List<Map<String, Object>> response = new ArrayList<>();
 
-                Map<String,Object> data = new HashMap<>();
+        for (Candidate candidate : candidates) {
 
-                data.put("name", c.getName());
-                data.put("votes", voteCount);
+                long count = voteCounts.getOrDefault(candidate.getName(), 0L);
 
-                results.add(data);
+                Map<String, Object> result = new HashMap<>();
+                result.put("name", candidate.getName());
+                result.put("votes", count);
+                result.put("party", candidate.getParty());   // ⭐ IMPORTANT
+
+                response.add(result);
         }
 
-        return ResponseEntity.ok(results);
+        return ResponseEntity.ok(response);
         }
     
     @GetMapping("/admin/stats")
@@ -144,7 +152,6 @@ public class VoteController {
         long totalVotes = voteRepository.count();
         long totalUsers = userService.getTotalUsers();
 
-        // Votes per constituency
         List<VoteRecord> allVotes = voteRepository.findAll();
 
         Map<String, Long> votesByConstituency =
@@ -153,13 +160,29 @@ public class VoteController {
                         Collectors.counting()
                 ));
 
-        Map<String, Long> candidateVotes =
-                allVotes.stream().collect(Collectors.groupingBy(
-                        VoteRecord::getCandidate,
-                        Collectors.counting()
-                ));
+        Map<String, Long> voteCounts =
+        allVotes.stream().collect(Collectors.groupingBy(
+                VoteRecord::getCandidate,
+                Collectors.counting()
+        ));
 
-        String leadingCandidate = candidateVotes.entrySet().stream()
+        List<Map<String, Object>> candidateVotes = new ArrayList<>();
+
+        List<Candidate> candidates = candidateRepository.findAll();
+
+        for (Candidate candidate : candidates) {
+
+        long votes = voteCounts.getOrDefault(candidate.getName(), 0L);
+
+        Map<String, Object> c = new HashMap<>();
+        c.put("name", candidate.getName());
+        c.put("votes", votes);
+        c.put("party", candidate.getParty());
+
+        candidateVotes.add(c);
+        }
+
+        String leadingCandidate = voteCounts.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse("No votes yet");

@@ -141,12 +141,11 @@ function Dashboard() {
                     outerRadius={90}
                     label={({name, value}) => `${name}: ${value}`}
                   >
-                    {Object.entries(stats.candidateVotes).map(([name], index) => {
-
-                      const candidate = candidates.find(c => c.name === name);
-                      const color = partyColors[candidate?.party] || "#8884d8";
-
-                      return <Cell key={index} fill={color} />;
+                    {stats.candidateVotes.map((entry, index) => {
+                      <Cell
+                        key={index}
+                        fill={partyColors[entry.party] || "#8884d8"}
+                      />
 
                     })}
                   </Pie>
