@@ -167,21 +167,31 @@ public class VoteController {
         ));
 
         List<Map<String, Object>> candidateVotes = new ArrayList<>();
-
+        
         List<Candidate> candidates = candidateRepository.findAll();
 
         for (Candidate candidate : candidates) {
 
-        long votes = voteCounts.getOrDefault(candidate.getName(), 0L);
+                long votes = voteCounts.getOrDefault(candidate.getName(), 0L);
 
-        Map<String, Object> c = new HashMap<>();
-        c.put("name", candidate.getName());
-        c.put("votes", votes);
-        c.put("party", candidate.getParty());
+                Map<String, Object> c = new HashMap<>();
+                c.put("name", candidate.getName());
+                c.put("votes", votes);
+                c.put("party", candidate.getParty());
 
-        candidateVotes.add(c);
+                candidateVotes.add(c);
         }
+        Map<String, Long> partyVotes = new HashMap<>();
 
+        for (Candidate candidate : candidates) {
+
+                long votes = voteCounts.getOrDefault(candidate.getName(), 0L);
+
+                partyVotes.put(
+                        candidate.getParty(),
+                        partyVotes.getOrDefault(candidate.getParty(), 0L) + votes
+                );
+        }
         String leadingCandidate = voteCounts.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
@@ -192,6 +202,7 @@ public class VoteController {
         response.put("totalUsers", totalUsers);
         response.put("votesByConstituency", votesByConstituency);
         response.put("candidateVotes", candidateVotes);
+        response.put("partyVotes", partyVotes);
         response.put("leadingCandidate", leadingCandidate);
 
         return ResponseEntity.ok(response);
