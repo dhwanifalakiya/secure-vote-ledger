@@ -8,18 +8,11 @@ function Dashboard() {
   const navigate = useNavigate();
   const [validationResult, setValidationResult] = useState(null);
   const [stats, setStats] = useState(null);
-  const [turnout, setTurnout] = useState(null);
+  const [turnout, setTurnout] = useState(0);
 
   useEffect(() => {
-    const role = localStorage.getItem("role");
-
-    if (role !== "ADMIN") {
-      alert("Access denied. Admin only.");
-      navigate("/vote");
-      return;
-    }
-
     fetchStats();
+    fetchTurnout();
   }, [navigate]);
 
   const fetchStats = async () => {
@@ -33,11 +26,19 @@ function Dashboard() {
     }
   };
   const fetchTurnout = async () => {
-    const role = localStorage.getItem("role");
+    try {
 
-    const res = await api.get(`/admin/turnout?role=${role}`);
+      const role = localStorage.getItem("role");
 
-    setTurnout(res.data);
+      const res = await api.get(`/admin/turnout?role=${role}`);
+
+      setTurnout(res.data.turnout);
+
+    } catch (error) {
+
+      console.error("Error fetching turnout", error);
+
+    }
   };
   const validateChain = async () => {
     try {
@@ -84,26 +85,25 @@ function Dashboard() {
       {stats && (
         <>
             <div className="stats-grid">
-            <div className="stat-card">
-                <h3>Total Users</h3>
-                <p>{stats.totalUsers}</p>
-            </div>
-
-            <div className="stat-card">
-                <h3>Total Votes</h3>
-                <p>{stats.totalVotes}</p>
-            </div>
-            {turnout &&(
               <div className="stat-card highlight">
-                  <h3>Voter Turnout</h3>
-                  <p>{turnout.turnout.toFixed(2)}%</p>
+                  <h3>Total Users</h3>
+                  <p>{stats.totalUsers}</p>
               </div>
-            )}
-              
-            <div className="stat-card highlight">
-                <h3>Leading Candidate</h3>
-                <p>{stats.leadingCandidate}</p>
-            </div>
+
+              <div className="stat-card highlight">
+                  <h3>Total Votes</h3>
+                  <p>{stats.totalVotes}</p>
+              </div>
+              <div className="stat-card highlight">
+                  <h3>Leading Candidate</h3>
+                  <p>{stats.leadingCandidate}</p>
+              </div>
+              {turnout &&(
+                <div className="stat-card highlight">
+                    <h3>Voter Turnout</h3>
+                    <p>{turnout.toFixed(2)}%</p>
+                </div>
+              )}
             </div>
 
             {/* Votes per Constituency */}

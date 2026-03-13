@@ -19,7 +19,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User register(String username, String password, String role) {
+    public User register(String username, String password, String role, String voterId, String constituency) {
 
         Optional<User> existingUser = userRepository.findByUsername(username);
         if (existingUser.isPresent()) {
@@ -27,6 +27,8 @@ public class UserService {
         }
         String encodedPassword = passwordEncoder.encode(password);
         User user = new User(username, encodedPassword, role);
+        user.setVoterId(voterId);
+        user.setConstituency(constituency);
         return userRepository.save(user);
     }
 

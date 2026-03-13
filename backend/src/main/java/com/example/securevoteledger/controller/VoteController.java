@@ -1,5 +1,6 @@
 package com.example.securevoteledger.controller;
 
+import com.example.securevoteledger.entity.User;
 import com.example.securevoteledger.entity.Candidate;
 import com.example.securevoteledger.entity.ElectionStatus;
 import com.example.securevoteledger.entity.VoteRecord;
@@ -60,6 +61,14 @@ public class VoteController {
         String constituency = body.get("constituency");
         String candidate = body.get("candidate");
 
+        User user = userRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.getConstituency().equals(constituency)) {
+                return ResponseEntity.status(403)
+                        .body("You cannot vote outside your constituency");
+        }
         if (username == null || constituency == null || candidate == null) {
                 return ResponseEntity.badRequest().body("Invalid vote data");
         }
@@ -84,6 +93,7 @@ public class VoteController {
 
         // Save once
         voteRepository.save(voteRecord);
+        System.out.println("Calling ethereum service...");
         ethereumService.storeVoteHash(currentHash);
 
         // ✅ Mark user voted
@@ -143,14 +153,12 @@ public class VoteController {
                         Collectors.counting()
                 ));
 
-        // Overall candidate aggregation
         Map<String, Long> candidateVotes =
                 allVotes.stream().collect(Collectors.groupingBy(
                         VoteRecord::getCandidate,
                         Collectors.counting()
                 ));
 
-        // Find overall winner
         String leadingCandidate = candidateVotes.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
@@ -218,12 +226,11 @@ public class VoteController {
 
         Map<String, Object> response = new HashMap<>();
 
-        response.put("registeredVoters", totalUsers);
-        response.put("votesCast", votesCast);
         response.put("turnout", turnout);
 
         return ResponseEntity.ok(response);
         }
+
         @GetMapping("/election-status")
         public boolean getElectionStatus(){
 
@@ -233,6 +240,7 @@ public class VoteController {
                 .map(ElectionStatus::isOpen)
                 .orElse(true);
         }
+
         @PostMapping("/admin/open-election")
         public String openElection(){
 
@@ -245,6 +253,7 @@ public class VoteController {
 
         return "Election opened";
         }
+
         @PostMapping("/admin/close-election")
         public String closeElection(){
 
@@ -256,5 +265,29 @@ public class VoteController {
         electionStatusRepository.save(status);
 
         return "Election closed";
+        }
+
+        @GetMapping("/blockchain")
+        public ResponseEntity<?> getBlockchain() {
+
+        List<VoteRecord> votes = voteRepository.findAll();
+
+        List<Map<String, Object>> blocks = new ArrayList<>();
+
+        for (VoteRecord vote : votes) {
+
+                Map<String, Object> block = new HashMap<>();
+
+                block.put("username", vote.getUsername());
+                block.put("candidate", vote.getCandidate());
+                block.put("constituency", vote.getConstituency());
+                block.put("previousHash", vote.getPreviousHash());
+                block.put("hash", vote.getVoteHash());
+                block.put("timestamp", vote.getTimestamp());
+
+                blocks.add(block);
+        }
+
+        return ResponseEntity.ok(blocks);
         }
 }

@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://secure-vote-ledger.onrender.com/api",
+  baseURL: "http://localhost:8080/api",
+  //baseURL: "https://secure-vote-ledger.onrender.com/api",
   headers: {
     "Content-Type": "application/json",
   },

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import {
   BarChart,
@@ -13,7 +12,6 @@ import {
 import "../styles/Results.css";
 
 function Results() {
-  const navigate = useNavigate();
   const [selectedConstituency, setSelectedConstituency] = useState("");
   const [results, setResults] = useState([]);
   const [constituencies, setConstituencies] = useState([]);
@@ -30,33 +28,25 @@ function Results() {
       console.error("Error fetching constituencies", error);
     }
   };
+
   useEffect(() => {
-    const role = localStorage.getItem("role");
-    if (role !== "ADMIN") {
-      alert("Access denied. Admin only.");
-      navigate("/vote");
-    }
-  }, [navigate]);
+    const fetchResults = async () => {
+      try {
+        const role = localStorage.getItem("role");
 
-  const fetchResults = async () => {
-    try {
-      const role = localStorage.getItem("role");
+        const res = await api.get(
+          `/results?constituency=${selectedConstituency}&role=${role}`
+        );
 
-      const res = await api.get(
-        `/results?constituency=${selectedConstituency}&role=${role}`
-      );
-
-      setResults(res.data);
-    } catch (error) {
-      console.error("Error fetching results", error);
-    }
-  };
-  
-  useEffect(() => {
+        setResults(res.data);
+      } catch (error) {
+        console.error("Error fetching results", error);
+      }
+    };
     if (selectedConstituency) {
       fetchResults();
     }
-  }, [selectedConstituency, fetchResults]);
+  }, [selectedConstituency]);
 
   return (
     <div className="results-page">

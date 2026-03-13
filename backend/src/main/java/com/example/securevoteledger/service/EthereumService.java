@@ -49,7 +49,7 @@ public class EthereumService {
             String encodedFunction = FunctionEncoder.encode(function);
 
             RawTransactionManager transactionManager =
-                    new RawTransactionManager(web3j, credentials, 1337);
+                new RawTransactionManager(web3j, credentials);
 
             EthSendTransaction transactionResponse =
                     transactionManager.sendTransaction(
@@ -60,12 +60,13 @@ public class EthereumService {
                             BigInteger.ZERO
                     );
 
-            String txHash = transactionResponse.getTransactionHash();
-
-            if (txHash == null) {
-                System.out.println("❌ Transaction failed to send!");
+            if (transactionResponse.hasError()) {
+                System.out.println("❌ Ethereum Error: " +
+                        transactionResponse.getError().getMessage());
                 return;
             }
+
+            String txHash = transactionResponse.getTransactionHash();
 
             System.out.println("⏳ Waiting for transaction receipt...");
 

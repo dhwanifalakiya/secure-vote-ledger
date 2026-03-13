@@ -121,4 +121,14 @@
     padding: 20px;
   }
 
+  .candidate-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar {
+    flex-direction: column;
+    height: auto;
+    padding: 15px;
+  }
+
 }

@@ -12,10 +12,12 @@ public class User {
 
     @Column(unique = true)
     private String username;
-
     private String password;
     private String role;
     private boolean hasVoted=false;
+    @Column(unique = true)
+    private String voterId;
+    private String constituency;
 
     public User() {}
 
@@ -39,4 +41,11 @@ public class User {
 
     public boolean isHasVoted() { return hasVoted; }
     public void setHasVoted(boolean hasVoted) { this.hasVoted = hasVoted; }
+
+    public String getVoterId() { return voterId; }
+    public void setVoterId(String voterId) { this.voterId = voterId; }
+
+    public String getConstituency() { return constituency; }
+    public void setConstituency(String constituency) { this.constituency = constituency; }
+
 }

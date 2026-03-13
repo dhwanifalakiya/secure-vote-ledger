@@ -5,11 +5,8 @@ const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
 
   if (!token) {
-    // Not logged in → redirect to login
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" />;
   }
-
-  // Logged in → allow access
   return children;
 };
 

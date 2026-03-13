@@ -143,4 +143,20 @@
   .chart-container {
     padding: 15px;
   }
+
+  .stats-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .candidate-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar {
+    flex-direction: column;
+    height: auto;
+    padding: 15px;
+  }
+
 }
