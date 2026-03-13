@@ -132,13 +132,15 @@ function Dashboard() {
                 <PieChart>
                   <Pie
                     
-                    data={stats.candidateVotes || []}
+                    data={(stats.candidateVotes || []).filter(c=>c.votes>0)}
                     dataKey="votes"
                     nameKey="name"
                     outerRadius={110}
                     label
                   >
-                    {(stats.candidateVotes || []).map((entry, index) => (
+                    {(stats.candidateVotes || [])
+                      .filter(c=>c.votes>0)
+                      .map((entry, index) => (
                       <Cell
                         key={index}
                         fill={partyColors[entry.party] || "#8884d8"}
