@@ -131,21 +131,19 @@ function Dashboard() {
             <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
-                    
-                    data={(stats.candidateVotes || []).filter(c=>c.votes>0)}
+                    data={Object.entries(stats.partyVotes || {}).map(([party, votes]) => ({
+                      party,
+                      votes
+                    }))}
                     dataKey="votes"
-                    nameKey="name"
-                    outerRadius={110}
-                    
+                    nameKey="party"
+                    outerRadius={100}
                   >
-                    {(stats.candidateVotes || [])
-                      .filter(c=>c.votes>0)
-                      .map((entry, index) => (
+                    {Object.entries(stats.partyVotes || {}).map(([party], index) => (
                       <Cell
                         key={index}
-                        fill={partyColors[entry.party] || "#8884d8"}
+                        fill={partyColors[party] || "#8884d8"}
                       />
-
                     ))}
                   </Pie>
                 <Tooltip />
