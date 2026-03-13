@@ -34,8 +34,3 @@ A Blockchain-Based E-Voting System
 2. Update `application.properties` with DB password
 3. Run: ```bash 
 ./mvnw spring-boot:run
-
-## Future Enhancements
-- One vote per user enforcement
-- Blockchain integration (Solidity + Ganache)
-- Admin dashboard
