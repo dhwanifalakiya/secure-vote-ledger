@@ -139,7 +139,7 @@ function Dashboard() {
                     dataKey="value"
                     nameKey="name"
                     outerRadius={90}
-                    label={({name, value}) => `${name}: ${value}`}
+                    label
                   >
                     {stats.candidateVotes.map((entry, index) => {
                       <Cell
