@@ -136,7 +136,7 @@ function Dashboard() {
                     dataKey="votes"
                     nameKey="name"
                     outerRadius={110}
-                    label
+                    
                   >
                     {(stats.candidateVotes || [])
                       .filter(c=>c.votes>0)
