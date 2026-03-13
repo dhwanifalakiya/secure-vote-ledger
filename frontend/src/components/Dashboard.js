@@ -10,6 +10,12 @@ function Dashboard() {
   const [stats, setStats] = useState(null);
   const [turnout, setTurnout] = useState(0);
 
+  const partyColors = {
+    "Party Alpha": "#2e7d32",
+    "Party Beta": "#1565c0",
+    "Party Gamma": "#ef6c00"
+  };
+
   useEffect(() => {
     fetchStats();
     fetchTurnout();
@@ -124,20 +130,16 @@ function Dashboard() {
             <h3>Overall Vote Distribution</h3>
             <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
-                  const partyColors = {
-                    "Party Alpha": "#2e7d32",
-                    "Party Beta": "#1565c0",
-                    "Party Gamma": "#ef6c00"
-                  };
                   <Pie
+                    
                     data={Object.entries(stats.candidateVotes).map(([name, votes]) => ({
                       name,
                       value: votes
                     }))}
                     dataKey="value"
                     nameKey="name"
-                    outerRadius={110}
-                    label
+                    outerRadius={90}
+                    label={({name, value}) => `${name}: ${value}`}
                   >
                     {Object.entries(stats.candidateVotes).map(([name], index) => {
 
