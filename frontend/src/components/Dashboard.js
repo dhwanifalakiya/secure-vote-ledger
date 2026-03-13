@@ -124,29 +124,30 @@ function Dashboard() {
             <h3>Overall Vote Distribution</h3>
             <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
-                <Pie
-                    data={Object.entries(stats.candidateVotes).map(
-                    ([name, votes]) => ({ name, value: votes })
-                    )}
+                  const partyColors = {
+                    "Party Alpha": "#2e7d32",
+                    "Party Beta": "#1565c0",
+                    "Party Gamma": "#ef6c00"
+                  };
+                  <Pie
+                    data={Object.entries(stats.candidateVotes).map(([name, votes]) => ({
+                      name,
+                      value: votes
+                    }))}
                     dataKey="value"
                     nameKey="name"
-                    outerRadius={100}
-                    fill="#8884d8"
+                    outerRadius={110}
                     label
-                >
-                    {Object.entries(stats.candidateVotes).map(
-                    ([,], index) => (
-                        <Cell
-                        key={index}
-                        fill={
-                            ["#138808", "#1a237e", "#ef6c00", "#9c27b0"][
-                            index % 4
-                            ]
-                        }
-                        />
-                    )
-                    )}
-                </Pie>
+                  >
+                    {Object.entries(stats.candidateVotes).map(([name], index) => {
+
+                      const candidate = candidates.find(c => c.name === name);
+                      const color = partyColors[candidate?.party] || "#8884d8";
+
+                      return <Cell key={index} fill={color} />;
+
+                    })}
+                  </Pie>
                 <Tooltip />
                 </PieChart>
             </ResponsiveContainer>
