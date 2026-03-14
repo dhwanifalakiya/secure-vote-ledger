@@ -25,10 +25,19 @@ public class EthereumService {
     private final String contractAddress;
 
     public EthereumService(
-            @Value("${ethereum.rpcUrl}") String rpcUrl,
-            @Value("${ethereum.privateKey}") String privateKey,
-            @Value("${ethereum.contractAddress}") String contractAddress
+        @Value("${ethereum.rpcUrl:}") String rpcUrl,
+        @Value("${ethereum.privateKey:}") String privateKey,
+        @Value("${ethereum.contractAddress:}") String contractAddress
     ) {
+
+        if (privateKey == null || privateKey.isBlank() || privateKey.equals("dummy")) {
+            System.out.println("Ethereum disabled - no valid private key");
+            this.web3j = null;
+            this.credentials = null;
+            this.contractAddress = null;
+            return;
+        }
+
         this.web3j = Web3j.build(new HttpService(rpcUrl));
         this.credentials = Credentials.create(privateKey);
         this.contractAddress = contractAddress;
